@@ -1,9 +1,13 @@
+from django.conf import settings
+from django.conf.urls.static import static
 from django.urls import path
 
 from . import views
 
 urlpatterns = [
-    path('', views.index),
+    path('', views.HomePage.as_view(),
+         name='home_page'),
+    path('config/', views.stripe_config),
     path('buy/<int:id>/',
          views.create_checkout_session,
          name='create_checkout_session'),
@@ -17,3 +21,8 @@ urlpatterns = [
          views.CancelledView.as_view(),
          name='cancelled_page'),
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(
+        settings.MEDIA_URL, document_root=settings.MEDIA_ROOT
+    )
