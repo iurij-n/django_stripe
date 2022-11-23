@@ -2,7 +2,7 @@
 
 -   Django Модель Item с полями (name, description, price, image)
     
--   API с двумя методами:
+API с двумя методами:
     
 
 -   GET  /buy/{id}, c помощью которого можно получить Stripe Session Id для оплаты выбранного Item. При выполнении этого метода c бэкенда с помощью python библиотеки stripe выполняет запрос stripe.checkout.Session.create(...) и полученный session.id выдаваться в результате запроса
