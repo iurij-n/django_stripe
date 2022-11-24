@@ -5,7 +5,7 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    path('', views.HomePage.as_view(),
+    path('', views.index,
          name='home_page'),
     path('config/', views.stripe_config),
     path('buy/<int:id>/',

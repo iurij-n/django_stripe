@@ -62,5 +62,12 @@ class CancelledView(TemplateView):
     template_name = 'cancelled.html'
 
 
-class HomePage(TemplateView):
-    template_name = 'index.html'
+def index(request):
+    template = 'index.html'
+    items = Item.objects.all()
+    title = 'Список товаров в магазине'
+    context = {
+        'items': items,
+        'title': title,
+    }
+    return render(request, template, context)
