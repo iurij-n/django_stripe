@@ -7,9 +7,8 @@ class Item(models.Model):
         max_length=200
     )
     description = models.TextField('Описание товара')
-    price = models.DecimalField('Цена',
-                                decimal_places=2,
-                                max_digits=10)
+    price = models.IntegerField('Цена',
+                                help_text='Цена товара в копейках')
     image = models.ImageField(
         'Изображение товара',
         upload_to='items/',

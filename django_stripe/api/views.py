@@ -34,7 +34,7 @@ def create_checkout_session(request, id):
                 'product_data': {
                     'name': item.name,
                     },
-                'unit_amount': int(item.price)*100,
+                'unit_amount': item.price,
             },
             'quantity': 1,
             }],
@@ -50,6 +50,7 @@ def item_info(request, id):
     item = get_object_or_404(Item, pk=id)
     context = {
         'item': item,
+        'price': f'{item.price/100:.2f}'
     }
     return render(request, 'item_info.html', context)
 
