@@ -16,7 +16,13 @@
         <h3>{{ item.name }}</h3>
         <p>{{ item.description }}</p>
         <span class="price">₽ {{ price }}</span>
-        <button id="buy-button" onclick="handler()">Buy now</button>
+        <button id="buy-button" onclick="handler()">Купить сейчас</button>
+        <br><br><br><br>
+        <form action="{% url "cart:cart_add" item.id %}" method="post">
+          {{ cart_product_form }}
+          {% csrf_token %}
+          <input type="submit" value="Добавить в корзину">
+        </form>
         <br><br><a href="/">К списку товаров</a>
           <script type="text/javascript">
             var url = '/buy/'+'{{ item.pk }}'+'/';

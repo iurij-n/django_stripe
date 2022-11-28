@@ -1,4 +1,5 @@
 import stripe
+from cart.forms import CartAddProductForm
 from django.conf import settings
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, render
@@ -48,8 +49,10 @@ def create_checkout_session(request, id):
 
 def item_info(request, id):
     item = get_object_or_404(Item, pk=id)
+    cart_product_form = CartAddProductForm()
     context = {
         'item': item,
+        'cart_product_form': cart_product_form,
         'price': f'{item.price/100:.2f}'
     }
     return render(request, 'item_info.html', context)

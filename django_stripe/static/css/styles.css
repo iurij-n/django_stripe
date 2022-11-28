@@ -47,3 +47,11 @@
  .product-item:hover .button {
     background: #fc5a5a;
  }
+
+td {
+   display: table-cell;
+   vertical-align: inherit;
+   text-align: center;
+   padding-left: 20px;
+   padding-right: 20px;
+}

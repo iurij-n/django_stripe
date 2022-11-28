@@ -1,0 +1,58 @@
+{% load thumbnail %}
+{% load static %}
+<html>
+    <head>
+      <title>Корзина</title>
+      <link href="{% static 'css/styles.css' %}" rel="stylesheet">
+      <script src="https://js.stripe.com/v3/"></script>
+    </head>
+    
+    <body>
+        <h1>Ваша корзина</h1>
+        <table class="cart">
+            <thead>
+            <tr>
+                <th></th>
+                <th>Название</th>
+                <th>Кол-во</th>
+                <th></th>
+                <th>Цена за 1 шт</th>
+                <th>Цена</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for item in cart %}
+                {% with product=item.item %}
+                    <tr>
+                        <td>
+                            <a href="{{ product.get_absolute_url }}">
+                                    {% if product.image %}
+                                        {% thumbnail product.image "100x100" crop="center" as im %}
+                                            <img src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}">
+                                        {% endthumbnail %}
+                                    {% else %}
+                                        {% static "img/no_image.png" %}
+                                    {% endif %}
+                            </a>
+                        </td>
+                        <td>{{ product.name }}</td>
+                        <td>{{ item.quantity }}</td>
+                        <td><a href="{% url "cart:cart_remove" product.id%}">Удалить</a></td>
+                        <td class="num">₽ {{ item.fprice }}</td>
+                        <td class="num">₽ {{ item.total_price }}</td>
+                    </tr>
+                {% endwith %}
+            {% endfor %}
+            <tr class="total">
+                <td>Итого</td>
+                <td colspan="4"></td>
+                <td class="num">₽ {{ cart.get_total_price }}</td>
+            </tr>
+            </tbody>
+        </table>
+        <p class="text-right">
+            <a href="{% url "api:home_page" %}" class="button light">Продолжить покупки</a>
+            <a href="#" class="button">Оплатить</a>
+        </p>
+    </body>
+</html>
