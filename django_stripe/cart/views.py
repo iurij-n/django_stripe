@@ -1,5 +1,8 @@
+import stripe
 from api.models import Item
+from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 
 from .cart import Cart
@@ -32,3 +35,26 @@ def cart_detail(request):
         'cart': cart,
     }
     return render(request, 'cart_detail.html', context)
+
+@csrf_exempt
+def create_cart_checkout_session(request):
+
+    cart = Cart(request)
+
+    session = stripe.checkout.Session.create(
+        line_items=[{
+            'price_data': {
+                'currency': 'rub',
+                'product_data': {
+                    'name': 'Товары из корзины',
+                    },
+                'unit_amount': cart.get_total_price_in_cents(),
+            },
+            'quantity': 1,
+            }],
+        mode='payment',
+        success_url='http://localhost:8000/success',
+        cancel_url='http://localhost:8000/cancel',
+    )
+
+    return JsonResponse({'sessionId': session.id})

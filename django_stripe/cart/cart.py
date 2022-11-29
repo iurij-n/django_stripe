@@ -79,6 +79,14 @@ class Cart(object):
                                self.cart.values())
         return f'{total_cart_price/100:.2f}'
 
+    def get_total_price_in_cents(self):
+        """
+        Стоимости товаров в корзине выраженное в копейках.
+        """
+        return int(sum((Decimal(catr_item['price'])) *
+                       catr_item['quantity'] for catr_item in
+                       self.cart.values()))
+
     def clear(self):
         # удаление корзины из сессии
         del self.session[settings.CART_SESSION_ID]

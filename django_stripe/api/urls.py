@@ -7,21 +7,21 @@ from . import views
 app_name = 'api'
 
 urlpatterns = [
-    path('', views.index,
-         name='home_page'),
-    path('config/', views.stripe_config),
-    path('buy/<int:id>/',
-         views.create_checkout_session,
-         name='create_checkout_session'),
-    path('item/<int:id>/',
-         views.item_info,
-         name='item_info'),
-    path('success/',
+     path('', views.index,
+          name='home_page'),
+     path('config/', views.stripe_config),
+     path('buy/<int:id>/',
+          views.create_checkout_session,
+          name='create_checkout_session'),
+     path('item/<int:id>/',
+          views.item_info,
+          name='item_info'),
+     path('success/',
          views.SuccessView.as_view(),
-         name='success_page'),
-    path('cancelled/',
-         views.CancelledView.as_view(),
-         name='cancelled_page'),
+          name='success_page'),
+     path('cancelled/',
+          views.CancelledView.as_view(),
+          name='cancelled_page'),
 ]
 
 if settings.DEBUG:

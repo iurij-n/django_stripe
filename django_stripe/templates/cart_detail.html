@@ -52,7 +52,26 @@
         </table>
         <p class="text-right">
             <a href="{% url "api:home_page" %}" class="button light">Продолжить покупки</a>
-            <a href="#" class="button">Оплатить</a>
+            <button id="buy-button" onclick="handler()">Купить сейчас</button>
         </p>
+        <script type="text/javascript">
+            var url = '/cart/buy/';
+            function handler() {
+
+              fetch("/config/")
+              .then((result) => { return result.json(); })
+              .then((data) => {
+                const stripe = Stripe(data.publicKey);
+                fetch(url)
+                .then((result) => { return result.json(); })
+                .then((data) => {
+                  return stripe.redirectToCheckout({ sessionId: data.sessionId });
+                })
+                .then((res) => {
+                  console.log(res);
+                });
+              });
+            };
+          </script>
     </body>
 </html>
