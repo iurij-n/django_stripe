@@ -11,4 +11,7 @@ urlpatterns = [
     path('buy/',
         views.create_cart_checkout_session,
         name='create_cart_checkout_session'),
+    path('success/',
+          views.success_view,
+          name='cart_success_page'),
 ]

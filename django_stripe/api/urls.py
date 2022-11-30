@@ -17,7 +17,7 @@ urlpatterns = [
           views.item_info,
           name='item_info'),
      path('success/',
-         views.SuccessView.as_view(),
+          views.SuccessView.as_view(),
           name='success_page'),
      path('cancelled/',
           views.CancelledView.as_view(),

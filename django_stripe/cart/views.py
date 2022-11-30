@@ -53,8 +53,14 @@ def create_cart_checkout_session(request):
             'quantity': 1,
             }],
         mode='payment',
-        success_url='http://localhost:8000/success',
+        success_url='http://localhost:8000/cart/success',
         cancel_url='http://localhost:8000/cancel',
     )
 
     return JsonResponse({'sessionId': session.id})
+
+
+def success_view(request):
+    cart = Cart(request)
+    cart.clear()
+    return render(request, 'success.html')
