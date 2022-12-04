@@ -22,6 +22,9 @@ urlpatterns = [
      path('cancelled/',
           views.CancelledView.as_view(),
           name='cancelled_page'),
+     path('currency_select/',
+          views.currency_select,
+          name='currency_select'),
 ]
 
 if settings.DEBUG:

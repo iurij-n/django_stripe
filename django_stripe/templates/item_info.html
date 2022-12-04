@@ -9,6 +9,11 @@
   
   <body>
     <div class="container">
+      <div class="row">
+        <div class="col-12">
+          <a href="/">К списку товаров</a>
+        </div>
+      </div>
       <div class="row row-cols-md-2 row-cols-1 my-5 mx-5">
         <div class="col-md-4  col-sm-12 text-center">
           {% thumbnail item.image "270x270" crop="center" as im %}
@@ -18,19 +23,19 @@
         <div class="col-md-8 col-sm-12">
           <h3 class="my-3">{{ item.name }}</h3>
           <p class="my-3">{{ item.description }}</p>
-          <div class="badge bg-primary text-wrap fs-2">₽ {{ price }}</div1>
+          <div class="badge bg-primary text-wrap fs-2">{{ currency_symbol }} {{ price }}</div>
         </div>
       </div>
       <div class="row row-cols-sm-2 row-cols-1 my-5 mx-5">
-        <div class="col"></div>
-        <button id="buy-button" onclick="handler()">Купить сейчас</button>
-        
-        <form action="{% url "cart:cart_add" item.id %}" method="post">
-          {{ cart_product_form }}
-          {% csrf_token %}
-          <input type="submit" value="Добавить в корзину">
-        </form>
-        <a href="/">К списку товаров</a>
+        <div class="col-md-4 col-sm-12 text-center">
+          <form action="{% url "cart:cart_add" item.id %}" method="post">
+            {{ cart_product_form }}
+            {% csrf_token %}
+            <input type="submit" value="Добавить в корзину">
+          </form>
+          <button id="buy-button" onclick="handler()">Купить сейчас</button>
+        </div>
+        <div class="col-md-8 col-sm-12 text-center"></div>
       </div>
     </div>
           <script type="text/javascript">

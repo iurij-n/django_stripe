@@ -1,12 +1,14 @@
 import stripe
 from cart.forms import CartAddProductForm
+from .forms import CurrencySelectForm
 from django.conf import settings
 from django.http import HttpResponse, JsonResponse
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, render, redirect
 from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
 from django.views.generic.base import TemplateView
 
-from .models import Item
+from .models import Item, Сurrency
 
 
 def buy_item(request, id):
@@ -27,15 +29,17 @@ def stripe_config(request):
 def create_checkout_session(request, id):
 
     item = get_object_or_404(Item, pk=id)
+    currency = get_object_or_404(Сurrency,
+                                 alphabetic_code=request.session['currency'])
 
     session = stripe.checkout.Session.create(
         line_items=[{
             'price_data': {
-                'currency': 'rub',
+                'currency': currency.alphabetic_code,
                 'product_data': {
                     'name': item.name,
                     },
-                'unit_amount': item.price,
+                'unit_amount': int(item.price/currency.exchange_rate),
             },
             'quantity': 1,
             }],
@@ -49,11 +53,15 @@ def create_checkout_session(request, id):
 
 def item_info(request, id):
     item = get_object_or_404(Item, pk=id)
+    currency = get_object_or_404(Сurrency,
+                                 alphabetic_code=request.session['currency'])
     cart_product_form = CartAddProductForm()
+    price = int(item.price/currency.exchange_rate)
     context = {
         'item': item,
         'cart_product_form': cart_product_form,
-        'price': f'{item.price/100:.2f}'
+        'price': f'{price/100:.2f}',
+        'currency_symbol': currency.currency_symbol
     }
     return render(request, 'item_info.html', context)
 
@@ -70,8 +78,25 @@ def index(request):
     template = 'index.html'
     items = Item.objects.all()
     title = 'Список товаров в магазине'
+    if request.session.get('currency'):
+        currency_select_form = CurrencySelectForm(
+            initial={'currency': request.session['currency']})
+    else:
+        request.session['currency'] = 'RUB'
+        currency_select_form = CurrencySelectForm()
     context = {
         'items': items,
         'title': title,
+        'currency_select_form': currency_select_form,
     }
     return render(request, template, context)
+
+
+@require_POST
+def currency_select(request):
+    form = CurrencySelectForm(request.POST)
+    print(form.is_valid())
+    if form.is_valid():
+        cd = form.cleaned_data
+        request.session['currency'] = cd['currency']
+    return redirect('api:home_page')

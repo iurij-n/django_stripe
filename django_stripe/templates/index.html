@@ -8,13 +8,20 @@
 
   <body>
     <div class="container">
+      <div class="row">
+        <form action="{% url "api:currency_select" %}" method="post">
+          {{ currency_select_form }}
+          {% csrf_token %}
+          <input type="submit" value="Выбрать валюту">
+        </form>
+      </div>
       <div class="row row-cols-md-3 row-cols-sm-2 row-cols-1 my-5 mx-5">
         {% for item in items %}
         <div class="col text-center p-5">
             <a href="/item/{{ item.pk }}/">
             {% if item.image is not Null %}
               <div>
-                {% thumbnail item.image "100x100" crop="center" upscale=True as im %}
+                {% thumbnail item.image "200x200" crop="center" upscale=True as im %}
                   <img class="img-thumbnail" src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}">
                 {% endthumbnail %}
               </div>
