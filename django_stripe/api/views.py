@@ -77,12 +77,14 @@ class CancelledView(TemplateView):
 def index(request):
     template = 'index.html'
     items = Item.objects.all()
+    currency = get_object_or_404(Сurrency,
+                                 pk=1)
     title = 'Список товаров в магазине'
     if request.session.get('currency'):
         currency_select_form = CurrencySelectForm(
             initial={'currency': request.session['currency']})
     else:
-        request.session['currency'] = 'RUB'
+        request.session['currency'] = currency.alphabetic_code
         currency_select_form = CurrencySelectForm()
     context = {
         'items': items,
@@ -95,7 +97,6 @@ def index(request):
 @require_POST
 def currency_select(request):
     form = CurrencySelectForm(request.POST)
-    print(form.is_valid())
     if form.is_valid():
         cd = form.cleaned_data
         request.session['currency'] = cd['currency']
