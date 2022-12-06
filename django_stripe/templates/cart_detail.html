@@ -3,75 +3,104 @@
 <html>
     <head>
       <title>Корзина</title>
-      <link href="{% static 'css/styles.css' %}" rel="stylesheet">
+      <link href="{% static 'css/bootstrap.css' %}" rel="stylesheet">
       <script src="https://js.stripe.com/v3/"></script>
     </head>
     
     <body>
-        <h1>Ваша корзина</h1>
-        <table class="cart">
-            <thead>
-            <tr>
-                <th></th>
-                <th>Название</th>
-                <th>Кол-во</th>
-                <th></th>
-                <th>Цена за 1 шт</th>
-                <th>Цена</th>
-            </tr>
-            </thead>
-            <tbody>
-            {% for item in cart %}
-                {% with product=item.item %}
-                    <tr>
-                        <td>
-                            <a href="{{ product.get_absolute_url }}">
-                                    {% if product.image %}
-                                        {% thumbnail product.image "100x100" crop="center" as im %}
-                                            <img src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}">
-                                        {% endthumbnail %}
-                                    {% else %}
-                                        {% static "img/no_image.png" %}
-                                    {% endif %}
-                            </a>
-                        </td>
-                        <td>{{ product.name }}</td>
-                        <td>{{ item.quantity }}</td>
-                        <td><a href="{% url "cart:cart_remove" product.id%}">Удалить</a></td>
-                        <td class="num">₽ {{ item.fprice }}</td>
-                        <td class="num">₽ {{ item.total_price }}</td>
-                    </tr>
-                {% endwith %}
-            {% endfor %}
-            <tr class="total">
-                <td>Итого</td>
-                <td colspan="4"></td>
-                <td class="num">₽ {{ cart.get_total_price }}</td>
-            </tr>
-            </tbody>
-        </table>
-        <p class="text-right">
-            <a href="{% url "api:home_page" %}" class="button light">Продолжить покупки</a>
-            <button id="buy-button" onclick="handler()">Купить сейчас</button>
-        </p>
-        <script type="text/javascript">
-            var url = '/cart/buy/';
-            function handler() {
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+                    <h1 class="my-3">Ваша корзина</h1>
+                    <table class="table table-striped">
+                        <thead>
+                        <tr>
+                            <th></th>
+                            <th>Название</th>
+                            <th>Кол-во</th>
+                            <th></th>
+                            <th>Цена за 1 шт</th>
+                            <th>Цена</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for item in cart %}
+                            {% with product=item.item %}
+                                <tr>
+                                    <td>
+                                        <a href="{{ product.get_absolute_url }}">
+                                                {% if product.image %}
+                                                    {% thumbnail product.image "100x100" crop="center" as im %}
+                                                        <img src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}">
+                                                    {% endthumbnail %}
+                                                {% else %}
+                                                    {% static "img/no_image.png" %}
+                                                {% endif %}
+                                        </a>
+                                    </td>
+                                    <td>{{ product.name }}</td>
+                                    <td>{{ item.quantity }}</td>
+                                    <td><a href="{% url "cart:cart_remove" product.id%}">Удалить</a></td>
+                                    <td class="num">{{ currency.currency_symbol }} {{ item.fprice }}</td>
+                                    <td class="num">{{ currency.currency_symbol }} {{ item.total_price }}</td>
+                                </tr>
+                            {% endwith %}
+                        {% endfor %}
+                        {% if cart.coupon %}
+                        <tr class="subtotal">
+                            <td>Итого</td>
+                            <td colspan="4"></td>
+                            <td class="num">{{ currency.currency_symbol }} {{ cart.get_total_price }}</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                Применен купон "{{ cart.coupon.code }}" скидка ({{ cart.coupon.discount }}%)
+                            </td>
+                            <td colspan="4"></td>
+                            <td class="num neg">
+                                - {{ currency.currency_symbol }} {{ cart.get_discount|floatformat:"2" }}
+                            </td>
+                        </tr>
+                        {% endif %}
+                        <tr class="total">
+                            <td>Итого с учетом скидки</td>
+                            <td colspan="4"></td>
+                            <td class="num">
+                                {{ currency.currency_symbol }} {{ cart.get_total_price_after_discount|floatformat:"2" }}
+                            </td>
+                        </tr>
+                            </tbody>
+                        </table>
+                        <form action="{% url "coupon:apply" %} " method="post">
+                            {{ coupon_apply_form }}
+                            <input type="submit" value="Применить" class="btn btn-primary" >
+                            {% csrf_token %}
+                        </form>
+                        <p class="text-right">
+                            <button id="buy-button" onclick="handler()" class="btn btn-primary" >Оплатить товары в корзине</button>
+                            или <a href="{% url "api:home_page" %}" class="button light">Продолжить покупки</a>
+                        </p>
+                        <script type="text/javascript">
+                            var url = '/cart/buy/';
+                            function handler() {
 
-              fetch("/config/")
-              .then((result) => { return result.json(); })
-              .then((data) => {
-                const stripe = Stripe(data.publicKey);
-                fetch(url)
-                .then((result) => { return result.json(); })
-                .then((data) => {
-                  return stripe.redirectToCheckout({ sessionId: data.sessionId });
-                })
-                .then((res) => {
-                  console.log(res);
-                });
-              });
-            };
-          </script>
+                            fetch("/config/")
+                            .then((result) => { return result.json(); })
+                            .then((data) => {
+                                const stripe = Stripe(data.publicKey);
+                                fetch(url)
+                                .then((result) => { return result.json(); })
+                                .then((data) => {
+                                return stripe.redirectToCheckout({ sessionId: data.sessionId });
+                                })
+                                .then((res) => {
+                                console.log(res);
+                                });
+                            });
+                            };
+                        </script>
+                </div>
+            </div>
+        </div>
     </body>
 </html>

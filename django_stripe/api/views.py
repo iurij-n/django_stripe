@@ -31,7 +31,6 @@ def create_checkout_session(request, id):
     item = get_object_or_404(Item, pk=id)
     currency = get_object_or_404(Сurrency,
                                  alphabetic_code=request.session['currency'])
-
     session = stripe.checkout.Session.create(
         line_items=[{
             'price_data': {
@@ -77,14 +76,14 @@ class CancelledView(TemplateView):
 def index(request):
     template = 'index.html'
     items = Item.objects.all()
-    currency = get_object_or_404(Сurrency,
-                                 pk=1)
+    # currency = get_object_or_404(Сurrency,
+    #                              pk=1)
     title = 'Список товаров в магазине'
     if request.session.get('currency'):
         currency_select_form = CurrencySelectForm(
             initial={'currency': request.session['currency']})
     else:
-        request.session['currency'] = currency.alphabetic_code
+        request.session['currency'] = settings.DEFAULT_CURRENCY
         currency_select_form = CurrencySelectForm()
     context = {
         'items': items,

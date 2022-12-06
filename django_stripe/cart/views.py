@@ -1,5 +1,5 @@
 import stripe
-from api.models import Item
+from api.models import Item, Сurrency
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.csrf import csrf_exempt
@@ -7,6 +7,7 @@ from django.views.decorators.http import require_POST
 
 from .cart import Cart
 from .forms import CartAddProductForm
+from coupon.forms import CouponApplyForm
 
 
 @require_POST
@@ -31,24 +32,39 @@ def cart_remove(request, item_id):
 
 def cart_detail(request):
     cart = Cart(request)
+    currency = get_object_or_404(Сurrency,
+                                 alphabetic_code=request.session['currency'])
+    coupon_apply_form = CouponApplyForm()
+    for cart_item in cart:
+        cart_item['price'] = str(
+            cart_item['item'].price/currency.exchange_rate)
+        cart_item_price = cart_item["item"].price/currency.exchange_rate
+        cart_item['fprice'] = f'{cart_item_price/100:.2f}'
     context = {
         'cart': cart,
+        'currency': currency,
+        'coupon_apply_form': coupon_apply_form
     }
     return render(request, 'cart_detail.html', context)
+
 
 @csrf_exempt
 def create_cart_checkout_session(request):
 
     cart = Cart(request)
-
+    currency = get_object_or_404(Сurrency,
+                                 alphabetic_code=request.session['currency'])
+    
     session = stripe.checkout.Session.create(
         line_items=[{
             'price_data': {
-                'currency': 'rub',
+                'currency': currency.alphabetic_code,
                 'product_data': {
                     'name': 'Товары из корзины',
                     },
-                'unit_amount': cart.get_total_price_in_cents(),
+                'unit_amount': int(
+                    cart.get_total_price_after_discount() * 100 /
+                    currency.exchange_rate),
             },
             'quantity': 1,
             }],
@@ -63,4 +79,5 @@ def create_cart_checkout_session(request):
 def success_view(request):
     cart = Cart(request)
     cart.clear()
+    request.session['coupon_id'] = None
     return render(request, 'success.html')
